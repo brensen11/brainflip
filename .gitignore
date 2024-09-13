@@ -4,3 +4,4 @@
 gmon.out
 analysis.txt
 .vscode/**
+**/bench-out/**
