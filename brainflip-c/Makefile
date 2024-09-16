@@ -1,5 +1,6 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -O2 -g
+PROFILE_FLAGS = -fprofile-arcs -ftest-coverage -pg -no-pie
+CFLAGS = -Wall -Wextra -O2
 TARGET = brainflip
 
 all: $(TARGET)
