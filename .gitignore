@@ -5,3 +5,6 @@ gmon.out
 analysis.txt
 .vscode/**
 **/bench-out/**
+*.gcno
+*.gcov
+*.gcda
