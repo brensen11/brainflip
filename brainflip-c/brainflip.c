@@ -53,14 +53,14 @@ void run(char* program) {
                 // - move the pointer right
                 case '>':
                     if (POINTER == TAPE_SIZE) // TAPE_SIZE < MAX_INT, 2 billion
-                        panic("Pointer Out of Bounds!");
+                        panic("Pointer Out of Bounds! Increase tape size");
                     POINTER++;            
                     break;
                 
                 // - move the pointer left
                 case '<':
                     if (POINTER == 0)
-                        panic("Pointer Out of Bounds!");
+                        panic("Pointer Out of Bounds! Increase tape size");
                     POINTER--;
                     break;
                 
