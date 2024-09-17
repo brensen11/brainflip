@@ -108,11 +108,16 @@ void run(char* program) {
 }
 
 int main(int argc, char** argv) {
+    if (argc < 2) {
+        printf("Usage: ./brainflip <path-to-bf.b>");
+        return 1;
+    }
+
     char* filename = argv[1];
     FILE* file = fopen(filename, "r");
     if(!file) {
         printf("Could not open %s", filename);
-        return NULL;
+        return 1;
     }
 
     fseek(file, 0, SEEK_END);
