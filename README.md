@@ -1,5 +1,7 @@
 # Brainflip
 
+A few toy bf interpreters and a collection of benches.
+
 ## Build and Run
 ```
 cd brainflip-c
