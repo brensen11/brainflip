@@ -93,12 +93,12 @@ func categorize_brackets(program string, bracketPairs map[int]int) ([]int, []int
 		case ']':
 			if state == SIMPLE {
 				if ptr_rel_loc == 0 && (p0_changes == 1 || p0_changes == -1) {
-					simples = append(simples, bracketPairs[i])
+					simples = append(simples, i)
 				} else {
-					complexes = append(complexes, bracketPairs[i])
+					complexes = append(complexes, i)
 				}
 			} else if state == COMPLEX {
-				complexes = append(complexes, bracketPairs[i])
+				complexes = append(complexes, i)
 			}
 			state = CLOSED
 		case '.':
@@ -129,7 +129,7 @@ func interpret_profiler(program string) {
 	var TAPE [TAPE_SIZE]byte
 	var POINTER int = 0
 	bracketPairs := locate_brackets(program)
-	leftBrackCount := make(map[int]int)
+	rightBrackCount := make(map[int]int)
 
 	// main run function
 	for PC := 0; PC < len(program); PC++ {
@@ -161,23 +161,24 @@ func interpret_profiler(program string) {
 			cmd_count[5]++
 			// do nothing
 		case '[':
+			cmd_count[6]++
 			if TAPE[POINTER] == 0 {
 				PC = bracketPairs[PC]
 				continue
 			}
-			cmd_count[6]++
-			leftBrackCount[PC]++
 		case ']':
+			rightBrackCount[PC]++
+			cmd_count[7]++
 			if TAPE[POINTER] != 0 {
 				PC = bracketPairs[PC]
 				continue
 			}
-			cmd_count[7]++
 		default:
 			// do nothing
 		}
 	}
 
+	println()
 	fmt.Println("Instruction proc count:")
 	fmt.Println(">: ", cmd_count[0])
 	fmt.Println("<: ", cmd_count[1])
@@ -190,7 +191,7 @@ func interpret_profiler(program string) {
 
 	sort_func := func(slice []int) func(int, int) bool {
 		return func(i, j int) bool {
-			return leftBrackCount[slice[i]] > leftBrackCount[slice[j]]
+			return rightBrackCount[slice[i]] > rightBrackCount[slice[j]]
 		}
 	}
 
@@ -198,16 +199,17 @@ func interpret_profiler(program string) {
 	sort.Slice(simple, sort_func(simple))
 	sort.Slice(complex, sort_func(complex))
 
+	println()
 	fmt.Println("Simple Innermost Loops")
-	for _, v := range simple {
-		fmt.Println(v, leftBrackCount[v])
+	for _, idx := range simple {
+		fmt.Printf("Loop: %s at [%d:%d] occured %d times\n", program[bracketPairs[idx]:idx+1], bracketPairs[idx], idx+1, rightBrackCount[idx])
 	}
 
-	fmt.Println("Complex Innermost Loops")
-	for _, v := range complex {
-		fmt.Println(v, leftBrackCount[v])
+	println()
+	fmt.Println("\nComplex Innermost Loops")
+	for _, idx := range complex {
+		fmt.Printf("Loop: %s at [%d:%d] occured %d times\n", program[bracketPairs[idx]:idx+1], bracketPairs[idx], idx+1, rightBrackCount[idx])
 	}
-
 }
 
 func locate_brackets(program string) map[int]int {
