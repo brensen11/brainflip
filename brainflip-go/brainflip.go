@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strings"
 )
 
 type stack []int
@@ -67,7 +68,7 @@ func interpret(program string) {
 	}
 }
 
-func categorize_brackets(program string, bracketPairs map[int]int) ([]int, []int) {
+func categorize_brackets(program string) ([]int, []int) {
 	const (
 		SIMPLE int = iota
 		COMPLEX
@@ -195,20 +196,27 @@ func interpret_profiler(program string) {
 		}
 	}
 
-	simple, complex := categorize_brackets(program, bracketPairs)
+	simple, complex := categorize_brackets(program)
 	sort.Slice(simple, sort_func(simple))
 	sort.Slice(complex, sort_func(complex))
+
+	format_stmt := func(idx int) string {
+		loop_stmt := program[bracketPairs[idx] : idx+1]
+		loop_stmt = strings.Replace(loop_stmt, "\r", "", -1)
+		loop_stmt = strings.Replace(loop_stmt, "\n", "", -1)
+		return fmt.Sprintf("Loop: %s at [%d:%d] occured %d times", loop_stmt, bracketPairs[idx], idx+1, rightBrackCount[idx])
+	}
 
 	println()
 	fmt.Println("Simple Innermost Loops")
 	for _, idx := range simple {
-		fmt.Printf("Loop: %s at [%d:%d] occured %d times\n", program[bracketPairs[idx]:idx+1], bracketPairs[idx], idx+1, rightBrackCount[idx])
+		fmt.Println(format_stmt(idx))
 	}
 
 	println()
 	fmt.Println("\nComplex Innermost Loops")
 	for _, idx := range complex {
-		fmt.Printf("Loop: %s at [%d:%d] occured %d times\n", program[bracketPairs[idx]:idx+1], bracketPairs[idx], idx+1, rightBrackCount[idx])
+		fmt.Println(format_stmt(idx))
 	}
 }
 
@@ -248,4 +256,5 @@ func main() {
 	} else {
 		interpret(program)
 	}
+
 }
