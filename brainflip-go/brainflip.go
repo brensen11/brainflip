@@ -68,6 +68,11 @@ func interpret(program string) {
 }
 
 func categorize_brackets(program string, bracketPairs map[int]int) ([]int, []int) {
+	const (
+		SIMPLE int = iota
+		COMPLEX
+		CLOSED
+	)
 	simples := make([]int, 0, len(program)/2)
 	complexes := make([]int, 0, len(program)/2)
 
@@ -78,38 +83,39 @@ func categorize_brackets(program string, bracketPairs map[int]int) ([]int, []int
 	// (the cell that the pointer references when the loop body starts executing)
 	ptr_rel_loc := 0
 	p0_changes := 0
-	is_simple := true
-	is_innermost := true
+	state := CLOSED
 	for i, v := range program {
 		switch v {
 		case '[':
-			is_simple = true
-			is_innermost = true
+			state = SIMPLE
+			ptr_rel_loc = 0
+			p0_changes = 0
 		case ']':
-			if is_innermost && (p0_changes == 1 || p0_changes == -1) {
-				if is_simple {
+			if state == SIMPLE {
+				if ptr_rel_loc == 0 && (p0_changes == 1 || p0_changes == -1) {
 					simples = append(simples, bracketPairs[i])
 				} else {
 					complexes = append(complexes, bracketPairs[i])
 				}
+			} else if state == COMPLEX {
+				complexes = append(complexes, bracketPairs[i])
 			}
-			is_simple = false
-			is_innermost = false
+			state = CLOSED
 		case '.':
-			is_simple = false
+			state = COMPLEX
 		case ',':
-			is_simple = false
+			state = COMPLEX
 		case '>':
 			ptr_rel_loc++
 		case '<':
 			ptr_rel_loc--
 		case '+':
-			if ptr_rel_loc != 0 {
-				is_simple = false
+			if ptr_rel_loc == 0 {
+				p0_changes++
 			}
 		case '-':
-			if ptr_rel_loc != 0 {
-				is_simple = false
+			if ptr_rel_loc == 0 {
+				p0_changes--
 			}
 		}
 	}
