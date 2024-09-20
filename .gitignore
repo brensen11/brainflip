@@ -9,3 +9,4 @@ analysis.txt
 *.gcno
 *.gcov
 *.gcda
+*.asm
