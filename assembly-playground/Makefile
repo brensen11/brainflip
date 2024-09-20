@@ -37,4 +37,6 @@ hello-lll.o: hello-lll.asm
 
 # Keep it clean
 clean:
-	rm -f hello-lll hello-jh hello-win hello-win-ot *.o
+	rm -f hello-lll hello-jh hello-win hello-win-ot *.o *.obj
+
+
