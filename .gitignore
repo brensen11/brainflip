@@ -1,6 +1,7 @@
 *.exe
 *.ps
 *.o
+*.obj
 gmon.out
 analysis.txt
 .vscode/**
