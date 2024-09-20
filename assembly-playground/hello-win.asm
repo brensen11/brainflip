@@ -1,5 +1,4 @@
-	bits 64
-    global main
+	global main
 	extern printf
     extern ExitProcess
 	section .text
