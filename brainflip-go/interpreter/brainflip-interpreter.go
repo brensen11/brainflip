@@ -1,34 +1,19 @@
 package main
 
 import (
+	"brainflip-go/utils"
 	"fmt"
 	"os"
 	"sort"
 	"strings"
 )
 
-type stack []int
-
-func (s *stack) Push(v int) {
-	*s = append(*s, v)
-}
-
-func (s *stack) Pop() int {
-	l := len(*s)
-	if l == 0 {
-		panic("Tried to pop empty stack")
-	}
-	val := (*s)[l-1]
-	*s = (*s)[:l-1]
-	return val
-}
-
 func interpret(program string) {
 	const TAPE_SIZE = 1024 * 4
 	var TAPE [TAPE_SIZE]byte
 	var POINTER int = 0
 
-	bracketPairs := locate_brackets(program)
+	bracketPairs := utils.Locate_Brackets(program)
 	// main run function
 	for PC := 0; PC < len(program); PC++ {
 		cmd := program[PC]
@@ -129,7 +114,7 @@ func interpret_profiler(program string) {
 	const TAPE_SIZE = 1024 * 4
 	var TAPE [TAPE_SIZE]byte
 	var POINTER int = 0
-	bracketPairs := locate_brackets(program)
+	bracketPairs := utils.Locate_Brackets(program)
 	rightBrackCount := make(map[int]int)
 
 	// main run function
@@ -218,26 +203,6 @@ func interpret_profiler(program string) {
 	for _, idx := range complex {
 		fmt.Println(format_stmt(idx))
 	}
-}
-
-func locate_brackets(program string) map[int]int {
-	bracketPairs := make(map[int]int)
-	stack := make(stack, 0, len(program)/2)
-
-	for i, v := range program {
-		if v == '[' {
-			stack.Push(i)
-		} else if v == ']' {
-			l_loc := stack.Pop()
-			bracketPairs[l_loc] = i
-			bracketPairs[i] = l_loc
-		}
-	}
-	if len(stack) != 0 {
-		panic("Mismatching [ & ]")
-	}
-
-	return bracketPairs
 }
 
 func main() {
