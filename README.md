@@ -4,7 +4,7 @@ A few toy bf interpreters, compiler, and a collection of benches.
 
 ## Build and Compile
 This compiler is meant for a windows x64 machine.
-You must have nasm and gcc installed.
+You must have nasm, gcc, and go installed.
 
 **Build the Compiler**
 ```
