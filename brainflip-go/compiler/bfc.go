@@ -8,6 +8,30 @@ import (
 	"strings"
 )
 
+var asm_win64_template = `bits 64
+default rel
+segment .text
+
+extern ExitProcess
+extern putchar
+extern getchar
+extern calloc
+
+global main
+main:
+    push    rbp
+    mov     rbp, rsp
+    sub     rsp, 32
+    mov     rcx, 4096
+    mov     rdx, 1
+    call    calloc
+    mov     rdi, rax
+
+{MAIN_CODE}
+
+    xor     rcx, rcx
+    call    ExitProcess`
+
 type builder struct {
 	strings.Builder
 }
@@ -60,36 +84,30 @@ func compile(program string) string {
 	return asm_b.String()
 }
 
-// TODO put as like driver in parent package or something
+func compile_file(filename string) string {
+	bf_data, prog_err := os.ReadFile(filename)
+	if prog_err != nil {
+		fmt.Println("Usage: ./brainflip <brainflip.b>")
+		panic("There was an error reading: " + filename)
+	}
+
+	bf_prog := string(bf_data)
+	bf_asm := compile(bf_prog)
+	asm := strings.Replace(asm_win64_template, "{MAIN_CODE}", bf_asm, 1)
+	return asm
+}
+
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: ./brainflip <brainflip.b> ", os.Args)
-	}
-
-	prog, prog_err := os.ReadFile(os.Args[1])
-	if prog_err != nil {
-		fmt.Println("Usage: ./brainflip <brainflip.b> ", os.Args)
+		fmt.Println("Usage: ./brainflip <brainflip.b>")
 		return
 	}
 
-	program := string(prog)
-	assembly := compile(program)
-
-	tmpl, tmpl_err := os.ReadFile("compiler/win.tmpl")
-	if tmpl_err != nil {
-		fmt.Println("Could not find template assembly file")
-		return
-	}
-
-	template := string(tmpl)
-	assembly_program := strings.Replace(template, "{MAIN_CODE}", assembly, 1)
+	assembly := compile_file(os.Args[1])
 
 	paths := strings.Split(os.Args[1], "/")
-	filename := paths[len(paths)-1]
-	program_name := strings.Split(filename, ".")[0]
-
-	fmt.Println("arg 1: ", os.Args[1])
-	fmt.Println("prog name: ", program_name)
+	bf_filename := paths[len(paths)-1]
+	program_name := strings.Split(bf_filename, ".")[0]
 
 	file, err := os.Create(fmt.Sprintf("%s-win.asm", program_name))
 	if err != nil {
@@ -98,7 +116,7 @@ func main() {
 	}
 	defer file.Close()
 
-	_, err = file.Write([]byte(assembly_program))
+	_, err = file.Write([]byte(assembly))
 	if err != nil {
 		fmt.Println("Error writing to file:", err)
 		return
