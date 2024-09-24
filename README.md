@@ -1,19 +1,32 @@
 # Brainflip
 
-A few toy bf interpreters and a collection of benches.
+A few toy bf interpreters, compiler, and a collection of benches.
 
-## Build and Run
+## Build and Compile
+This compiler is meant for a windows x64 machine.
+You must have nasm and gcc installed.
+
+**Build the Compiler**
 ```
 cd brainflip-go
-go run ./brainflip.go <path-to-bf.b> [-p]
-
-or 
-
-go build ./brainflip.go
-./brainflip <path-to-bf.b> [-p]
+go build compiler/bfc.go
 ```
 
-Example
+**Compile a program to assembly**
 ```
-./brainflip ../benches/hello.b
+./bfc <path/to/program_name.b>
+```
+
+**Link and Assembly the program**
+```
+make <program_name>
+```
+
+Full Example
+```
+cd brainflip-go
+go build compiler/bfc.go
+./bfc ../benches/hello.b
+make hello
+./hello.exe
 ```
