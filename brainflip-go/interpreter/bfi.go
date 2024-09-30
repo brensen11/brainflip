@@ -1,7 +1,7 @@
 package main
 
 import (
-	"brainflip-go/utils"
+	"brainflip-go/lexparse"
 	"fmt"
 	"os"
 	"sort"
@@ -13,7 +13,7 @@ func interpret(program string) {
 	var TAPE [TAPE_SIZE]byte
 	var POINTER int = 0
 
-	bracketPairs := utils.Locate_Brackets(program)
+	bracketPairs := lexparse.Locate_Brackets(program)
 	// main run function
 	for PC := 0; PC < len(program); PC++ {
 		cmd := program[PC]
@@ -53,68 +53,13 @@ func interpret(program string) {
 	}
 }
 
-func categorize_brackets(program string) ([]int, []int) {
-	const (
-		SIMPLE int = iota
-		COMPLEX
-		CLOSED
-	)
-	simples := make([]int, 0, len(program)/2)
-	complexes := make([]int, 0, len(program)/2)
-
-	// a simple loop is one that...
-	// - contains no i/o,
-	// - has 0 net change to the pointer
-	// - and that changes p[0] by either +1 or -1 after each loop iteration, aka by the end of the loop [0] has changed by 1
-	// (the cell that the pointer references when the loop body starts executing)
-	ptr_rel_loc := 0
-	p0_changes := 0
-	state := CLOSED
-	for i, v := range program {
-		switch v {
-		case '[':
-			state = SIMPLE
-			ptr_rel_loc = 0
-			p0_changes = 0
-		case ']':
-			if state == SIMPLE {
-				if ptr_rel_loc == 0 && (p0_changes == 1 || p0_changes == -1) {
-					simples = append(simples, i)
-				} else {
-					complexes = append(complexes, i)
-				}
-			} else if state == COMPLEX {
-				complexes = append(complexes, i)
-			}
-			state = CLOSED
-		case '.':
-			state = COMPLEX
-		case ',':
-			state = COMPLEX
-		case '>':
-			ptr_rel_loc++
-		case '<':
-			ptr_rel_loc--
-		case '+':
-			if ptr_rel_loc == 0 {
-				p0_changes++
-			}
-		case '-':
-			if ptr_rel_loc == 0 {
-				p0_changes--
-			}
-		}
-	}
-	return simples, complexes
-}
-
 func interpret_profiler(program string) {
 	var cmd_count [8]int
 
 	const TAPE_SIZE = 1024 * 4
 	var TAPE [TAPE_SIZE]byte
 	var POINTER int = 0
-	bracketPairs := utils.Locate_Brackets(program)
+	bracketPairs := lexparse.Locate_Brackets(program)
 	rightBrackCount := make(map[int]int)
 
 	// main run function
@@ -181,7 +126,7 @@ func interpret_profiler(program string) {
 		}
 	}
 
-	simple, complex := categorize_brackets(program)
+	simple, complex := lexparse.Categorize_Brackets(program)
 	sort.Slice(simple, sort_func(simple))
 	sort.Slice(complex, sort_func(complex))
 
