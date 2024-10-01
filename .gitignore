@@ -10,3 +10,8 @@ analysis.txt
 *.gcov
 *.gcda
 *.asm
+bfcheck/**
+bftest/**
+scan/**
+brainflip-go/tests/**
+brainflip-go/debug/**

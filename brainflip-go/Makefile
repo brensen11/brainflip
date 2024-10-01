@@ -2,7 +2,7 @@ LK=gcc
 ASM=nasm
 
 %: %-win.o
-	$(LK) -o $@ $<
+	$(LK) -g -o $@ $<
 
 %-win.o: %-win.asm
 	$(ASM) -o $@ -fwin64 $<
