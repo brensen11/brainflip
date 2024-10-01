@@ -7,7 +7,7 @@ type Program struct {
 	Complex_loops []int
 }
 
-func Lexparse(program string) Program {
+func Lexparse(program string) *Program {
 	var instructions []Instruction
 
 	// main run function
@@ -38,5 +38,5 @@ func Lexparse(program string) Program {
 	bracketPairs := Locate_Brackets(instructions)
 	simple_loops, complex_loops := Categorize_Brackets(instructions)
 
-	return Program{instructions, bracketPairs, simple_loops, complex_loops}
+	return &Program{instructions, bracketPairs, simple_loops, complex_loops}
 }

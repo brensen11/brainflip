@@ -24,11 +24,19 @@ type Right_loop struct{}
 type Tmp_Reg int
 
 const (
-	R1 Tmp_Reg = iota
+	R0 Tmp_Reg = iota
+	R1
 	R2
 	R3
-	R4
 )
+
+// type Reg struct{}
+// type Offset struct{}
+// type Imm struct{}
+
+// type Mul struct {
+// 	Op1, Op2
+// }
 
 type Store_Reg_Offset struct { // R = p[Offset]
 	Reg    Tmp_Reg
@@ -46,9 +54,9 @@ type Add_Offset_Reg struct {
 	Offset_1 int
 	Reg      Tmp_Reg
 }
-type Sub struct {
-	Offset_1 int
-	Offset_2 int
+type Sub_Imm_Reg struct {
+	Imm int
+	Reg Tmp_Reg
 }
 type Mul_Reg_Imm struct {
 	Reg Tmp_Reg
@@ -73,7 +81,7 @@ func (Store_Reg_Offset) isInstruction() {}
 func (Store_Reg_Reg) isInstruction()    {}
 func (Set_Offset_Imm) isInstruction()   {}
 func (Add_Offset_Reg) isInstruction()   {}
-func (Sub) isInstruction()              {}
+func (Sub_Imm_Reg) isInstruction()      {}
 func (Mul_Reg_Imm) isInstruction()      {}
 func (Raw) isInstruction()              {}
 
@@ -101,8 +109,8 @@ func (set Set_Offset_Imm) String() string {
 func (add Add_Offset_Reg) String() string {
 	return fmt.Sprintf("\np[%d] = p[%d] + R%d\n", add.Offset_1, add.Offset_1, add.Reg)
 }
-func (sub Sub) String() string {
-	return fmt.Sprintf("\np[%d] = p[%d] + p[%d]\n", sub.Offset_1, sub.Offset_1, sub.Offset_2)
+func (sub Sub_Imm_Reg) String() string {
+	return fmt.Sprintf("\nR%d = %d - R%d\n", sub.Reg, sub.Imm, sub.Reg)
 }
 func (mul Mul_Reg_Imm) String() string {
 	return fmt.Sprintf("\nR%d = R%d * %d\n", mul.Reg, mul.Reg, mul.Imm)
@@ -116,9 +124,13 @@ func Instructions_string(instrs []Instruction) string {
 	for _, v := range instrs {
 		b.WriteString(v.String())
 	}
-	return b.String()
+	final := b.String()
+	final = strings.Replace(final, "\n\n", "\n", -1)
+	return final
 }
 
-// func Instruction_replace(i int, j int, instrs []Instruction, new_instrs []Instruction) {
-
-// }
+func Instructions_replace(instrs []Instruction, i int, j int, replace_instrs []Instruction) []Instruction {
+	new_instrs := append(instrs[0:i], replace_instrs[:]...)
+	new_instrs = append(new_instrs, instrs[j:]...)
+	return new_instrs
+}

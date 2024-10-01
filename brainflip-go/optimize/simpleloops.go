@@ -3,10 +3,9 @@ package optimize
 import (
 	"brainflip-go/lexparse"
 	"fmt"
-	"slices"
 )
 
-func Optimize_simple_loops(program lexparse.Program) {
+func Optimize_simple_loops(program *lexparse.Program) {
 
 	for i := len(program.Simple_loops) - 1; i >= 0; i-- {
 		right_loop_index := program.Simple_loops[i]
@@ -62,23 +61,24 @@ func Optimize_simple_loops(program lexparse.Program) {
 		// 	p[0] = 0
 		// `
 		reverse := loop_increment == 1
-		new_instructions = append(new_instructions, lexparse.Store_Reg_Offset{lexparse.R1, 0}) // TMP_0 = p[0]
+		if len(rel_cell_change) > 1 {
+			new_instructions = append(new_instructions, lexparse.Store_Reg_Offset{lexparse.R0, 0}) // TMP_0 = p[0]
+		}
 		for offset, change := range rel_cell_change {
-			// if offset == 0 {
-			// 	continue
-			// }
+			if offset == 0 {
+				continue
+			}
 
 			// new_instructions = append(new_instructions, lexparse.)
-			new_instructions = append(new_instructions, lexparse.Store_Reg_Reg{lexparse.R2, lexparse.R1}) // TMP_1 = TMP_0
-			times := change
+			new_instructions = append(new_instructions, lexparse.Store_Reg_Reg{lexparse.R1, lexparse.R0}) // TMP_1 = TMP_0
 			if reverse {
-				times = 256 - change
+				new_instructions = append(new_instructions, lexparse.Sub_Imm_Reg{256, lexparse.R1})
 			}
-			new_instructions = append(new_instructions, lexparse.Mul_Reg_Imm{lexparse.R2, times})     // TMP_1 = TMP_1 * IMM
-			new_instructions = append(new_instructions, lexparse.Add_Offset_Reg{offset, lexparse.R2}) // p[offset] = p[offset] + TMP_1
+			new_instructions = append(new_instructions, lexparse.Mul_Reg_Imm{lexparse.R1, change})    // TMP_1 = TMP_1 * IMM
+			new_instructions = append(new_instructions, lexparse.Add_Offset_Reg{offset, lexparse.R1}) // p[offset] = p[offset] + TMP_1
 		}
 		new_instructions = append(new_instructions, lexparse.Set_Offset_Imm{0, 0}) // p[0] = 0
 
-		program.Instructions = slices.Replace(program.Instructions, left_loop_index, right_loop_index+1, new_instructions...)
+		program.Instructions = lexparse.Instructions_replace(program.Instructions, left_loop_index, right_loop_index+1, new_instructions)
 	}
 }

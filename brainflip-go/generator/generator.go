@@ -43,7 +43,7 @@ func (asm_b *builder) add_label(instr string, args ...any) {
 	asm_b.WriteString(fmt.Sprintf(instr+":\n", args...))
 }
 
-func Generate(program lexparse.Program) string {
+func Generate(program *lexparse.Program) string {
 	var asm_b builder
 	const TAPE_PTR string = "rdi"
 
