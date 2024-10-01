@@ -1,48 +1,50 @@
-package main
+package interpreter
 
 import (
 	"brainflip-go/lexparse"
+	"brainflip-go/utils"
 	"fmt"
-	"os"
 	"sort"
-	"strings"
 )
 
-func interpret(program string) {
+func Interpret(filename string) {
+	code := utils.Readfile(filename)
+	program := lexparse.Lexparse(code)
+
 	const TAPE_SIZE = 1024 * 4
 	var TAPE [TAPE_SIZE]byte
 	var POINTER int = 0
 
-	bracketPairs := lexparse.Locate_Brackets(program)
+	bracketPairs := lexparse.Locate_Brackets(program.Instructions)
 	// main run function
-	for PC := 0; PC < len(program); PC++ {
-		cmd := program[PC]
+	for PC := 0; PC < len(program.Instructions); PC++ {
+		cmd := program.Instructions[PC]
 		// fmt.Println("Checking for: ", cmd)
-		switch cmd {
-		case '>':
+		switch cmd.(type) {
+		case lexparse.Move_right:
 			if POINTER == TAPE_SIZE {
 				panic("Tape Pointer Out of Bounds!!")
 			}
 			POINTER++
-		case '<':
+		case lexparse.Move_left:
 			if POINTER == 0 {
 				panic("Tape Pointer Out of Bounds!!")
 			}
 			POINTER--
-		case '+':
+		case lexparse.Inc:
 			TAPE[POINTER]++
-		case '-':
+		case lexparse.Dec:
 			TAPE[POINTER]--
-		case '.':
+		case lexparse.Output:
 			fmt.Printf("%c", TAPE[POINTER])
-		case ',':
+		case lexparse.Input:
 			// do nothing
-		case '[':
+		case lexparse.Left_loop:
 			if TAPE[POINTER] == 0 {
 				PC = bracketPairs[PC]
 				continue
 			}
-		case ']':
+		case lexparse.Right_loop:
 			if TAPE[POINTER] != 0 {
 				PC = bracketPairs[PC]
 				continue
@@ -53,51 +55,54 @@ func interpret(program string) {
 	}
 }
 
-func interpret_profiler(program string) {
+func Interpret_profiler(filename string) {
+	code := utils.Readfile(filename)
+	program := lexparse.Lexparse(code)
+
 	var cmd_count [8]int
 
 	const TAPE_SIZE = 1024 * 4
 	var TAPE [TAPE_SIZE]byte
 	var POINTER int = 0
-	bracketPairs := lexparse.Locate_Brackets(program)
+	bracketPairs := lexparse.Locate_Brackets(program.Instructions)
 	rightBrackCount := make(map[int]int)
 
 	// main run function
-	for PC := 0; PC < len(program); PC++ {
-		cmd := program[PC]
+	for PC := 0; PC < len(program.Instructions); PC++ {
+		cmd := program.Instructions[PC]
 		// fmt.Println("Checking for: ", cmd)
-		switch cmd {
-		case '>':
+		switch cmd.(type) {
+		case lexparse.Move_right:
 			if POINTER == TAPE_SIZE {
 				panic("Tape Pointer Out of Bounds!!")
 			}
 			POINTER++
 			cmd_count[0]++
-		case '<':
+		case lexparse.Move_left:
 			if POINTER == 0 {
 				panic("Tape Pointer Out of Bounds!!")
 			}
 			POINTER--
 			cmd_count[1]++
-		case '+':
+		case lexparse.Inc:
 			TAPE[POINTER]++
 			cmd_count[2]++
-		case '-':
+		case lexparse.Dec:
 			TAPE[POINTER]--
 			cmd_count[3]++
-		case '.':
+		case lexparse.Output:
 			fmt.Printf("%c", TAPE[POINTER])
 			cmd_count[4]++
-		case ',':
+		case lexparse.Input:
 			cmd_count[5]++
 			// do nothing
-		case '[':
+		case lexparse.Left_loop:
 			cmd_count[6]++
 			if TAPE[POINTER] == 0 {
 				PC = bracketPairs[PC]
 				continue
 			}
-		case ']':
+		case lexparse.Right_loop:
 			rightBrackCount[PC]++
 			cmd_count[7]++
 			if TAPE[POINTER] != 0 {
@@ -126,14 +131,14 @@ func interpret_profiler(program string) {
 		}
 	}
 
-	simple, complex := lexparse.Categorize_Brackets(program)
+	simple, complex := lexparse.Categorize_Brackets(program.Instructions)
 	sort.Slice(simple, sort_func(simple))
 	sort.Slice(complex, sort_func(complex))
 
 	format_stmt := func(idx int) string {
-		loop_stmt := program[bracketPairs[idx] : idx+1]
-		loop_stmt = strings.Replace(loop_stmt, "\r", "", -1)
-		loop_stmt = strings.Replace(loop_stmt, "\n", "", -1)
+		loop_stmt := lexparse.Instructions_string(program.Instructions[bracketPairs[idx] : idx+1])
+		// loop_stmt = strings.Replace(loop_stmt, "\r", "", -1)
+		// loop_stmt = strings.Replace(loop_stmt, "\n", "", -1)
 		return fmt.Sprintf("Loop: %s at [%d:%d] occured %d times", loop_stmt, bracketPairs[idx], idx+1, rightBrackCount[idx])
 	}
 
@@ -148,23 +153,4 @@ func interpret_profiler(program string) {
 	for _, idx := range complex {
 		fmt.Println(format_stmt(idx))
 	}
-}
-
-func main() {
-	if len(os.Args) < 2 {
-		fmt.Println("Usage: ./brainflip <brainflip.b> ", os.Args)
-	}
-
-	data, err := os.ReadFile(os.Args[1])
-	if err != nil {
-		fmt.Println("Usage: ./brainflip <brainflip.b> ", os.Args)
-	}
-	program := string(data)
-
-	if len(os.Args) > 2 && os.Args[2] == "-p" {
-		interpret_profiler(program)
-	} else {
-		interpret(program)
-	}
-
 }

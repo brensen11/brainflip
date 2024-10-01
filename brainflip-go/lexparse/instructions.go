@@ -1,7 +1,13 @@
 package lexparse
 
+import (
+	"fmt"
+	"strings"
+)
+
 type Instruction interface {
 	isInstruction()
+	String() string
 }
 
 // ----- default 8 instruction -----
@@ -17,16 +23,16 @@ type Right_loop struct{}
 // ----- implementation specific IR -----
 
 type Set struct {
-	value  int
 	offset int
+	value  int
 }
 type Add struct {
-	value  uint
 	offset int
+	value  uint
 }
 type Sub struct {
-	value  uint
 	offset int
+	value  uint
 }
 
 // types extend Instruction
@@ -42,3 +48,31 @@ func (Right_loop) isInstruction() {}
 func (Set) isInstruction()        {}
 func (Add) isInstruction()        {}
 func (Sub) isInstruction()        {}
+
+// toString stmts
+
+func (Move_right) String() string { return ">" }
+func (Move_left) String() string  { return "<" }
+func (Inc) String() string        { return "+" }
+func (Dec) String() string        { return "-" }
+func (Output) String() string     { return "." }
+func (Input) String() string      { return "," }
+func (Left_loop) String() string  { return "[" }
+func (Right_loop) String() string { return "]" }
+func (set Set) String() string {
+	return fmt.Sprint("set(offset:", set.offset, "value:", set.value, ")")
+}
+func (add Add) String() string {
+	return fmt.Sprint("add(offset:", add.offset, "value:", add.value, ")")
+}
+func (sub Sub) String() string {
+	return fmt.Sprint("sub(offset:", sub.offset, "value:", sub.value, ")")
+}
+
+func Instructions_string(instrs []Instruction) string {
+	var b strings.Builder
+	for _, v := range instrs {
+		b.WriteString(v.String())
+	}
+	return b.String()
+}

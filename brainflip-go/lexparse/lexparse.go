@@ -1,7 +1,7 @@
 package lexparse
 
 type Program struct {
-	Intrsuctions  []Instruction
+	Instructions  []Instruction
 	BracketPairs  map[int]int
 	Simple_loops  []int
 	Complex_loops []int
@@ -9,7 +9,6 @@ type Program struct {
 
 func Lexparse(program string) Program {
 	var instructions []Instruction
-	const TAPE_PTR string = "rdi"
 
 	// main run function
 	for i := 0; i < len(program); i++ {

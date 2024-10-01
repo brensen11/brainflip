@@ -48,8 +48,8 @@ func Generate(program lexparse.Program) string {
 	const TAPE_PTR string = "rdi"
 
 	// main run function
-	for i := 0; i < len(program.Intrsuctions); i++ {
-		instruction := program.Intrsuctions[i]
+	for i := 0; i < len(program.Instructions); i++ {
+		instruction := program.Instructions[i]
 
 		switch instruction.(type) {
 		case lexparse.Move_right:
