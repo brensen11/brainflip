@@ -30,8 +30,8 @@ func Readfile(filename string) string {
 	return string(bf_data)
 }
 
-func Writefile(content string) {
-	file, err := os.Create("out-win.asm")
+func Writefile(content string, filename string) {
+	file, err := os.Create(filename)
 	if err != nil {
 		panic(fmt.Sprint("Error creating file:", err))
 	}

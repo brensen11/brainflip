@@ -21,9 +21,9 @@ void print_tape(unsigned char TAPE[], unsigned int TAPE_SIZE) {
 void run(char* program) {
         unsigned int length = strlen(program);
         // std::cout << "I AM CALLED WITH: " << program << '\n';
-        unsigned int TAPE_SIZE = 1024 * 4; // 4KB of Tape
+        unsigned int TAPE_SIZE = 1024 * 1024 * 4; // 4KB of Tape
         unsigned char* TAPE = (unsigned char*)calloc(TAPE_SIZE, sizeof(int));
-        unsigned int POINTER = 0;
+        unsigned int POINTER = TAPE_SIZE / 2;
         unsigned int PC = 0;
 
         unsigned int bracketPairs[length];
@@ -81,6 +81,8 @@ void run(char* program) {
                 
                 // - replace the value of the current cell with input
                 case ',':
+                    char ch = getchar();
+                    TAPE[POINTER] = ch;
                     break; // for now ... do nothing :D
                 
                 // - jump to the matching ] instruction if the current value is zero

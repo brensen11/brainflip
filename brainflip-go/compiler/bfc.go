@@ -6,7 +6,7 @@ import (
 	"brainflip-go/utils"
 )
 
-func Compile(filename string) {
+func Compile(filename string, outfile string) {
 	// ---------- get program name ----------
 	// .........
 
@@ -22,5 +22,5 @@ func Compile(filename string) {
 	assembly := generator.Generate(program)
 
 	// ---------- writefile ----------
-	utils.Writefile(assembly) // , filename)
+	utils.Writefile(assembly, outfile) // , filename)
 }

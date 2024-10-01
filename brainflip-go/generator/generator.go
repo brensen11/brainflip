@@ -21,7 +21,7 @@ main:
     push    rbp
     mov     rbp, rsp
     sub     rsp, 32
-    mov     rcx, 4096
+    mov     rcx, 1024 * 1024 * 4
     mov     rdx, 1
     call    calloc
     mov     rdi, rax
