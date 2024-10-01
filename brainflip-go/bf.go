@@ -13,6 +13,7 @@ func main() {
 
 	interpret := flag.Bool("i", false, "Interpret Mode On")
 	profile := flag.Bool("p", false, "Profile Mode On")
+	optimize := flag.Bool("O", false, "Optimizations On")
 
 	flag.Parse()
 
@@ -36,5 +37,5 @@ func main() {
 		return
 	}
 
-	compiler.Compile(filename, *out)
+	compiler.Compile(filename, *out, *optimize)
 }
