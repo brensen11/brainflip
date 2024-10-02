@@ -7,11 +7,11 @@ ASM=nasm
 %-win.o: %-win.asm
 	$(ASM) -o $@ -fwin64 $<
 
-runtime.o: runtime.c
-	$(LK) -c runtime.c -o runtime.o
+runtime.o: runtime/runtime.c
+	$(LK) -c runtime/runtime.c -o runtime.o
 
 clean:
-	rm -f *.asm *.exe *.dat *.data
+	rm -f *.asm *.exe
 
 # %: %.asm
 # 	rule: $@ and dependency: $<
