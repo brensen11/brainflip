@@ -1,10 +1,10 @@
 package lexparse
 
 type Program struct {
-	Instructions  []Instruction
-	BracketPairs  map[int]int
-	Simple_loops  []int
-	Complex_loops []int
+	Instructions  *[]Instruction
+	BracketPairs  *map[int]int
+	Simple_loops  *[]int
+	Complex_loops *[]int
 }
 
 func Lexparse(program string) *Program {
@@ -38,5 +38,5 @@ func Lexparse(program string) *Program {
 	bracketPairs := Locate_Brackets(instructions)
 	simple_loops, complex_loops := Categorize_Brackets(instructions)
 
-	return &Program{instructions, bracketPairs, simple_loops, complex_loops}
+	return &Program{&instructions, &bracketPairs, &simple_loops, &complex_loops}
 }

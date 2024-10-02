@@ -15,10 +15,10 @@ func Interpret(filename string) {
 	var TAPE [TAPE_SIZE]byte
 	var POINTER int = TAPE_SIZE / 2
 
-	bracketPairs := lexparse.Locate_Brackets(program.Instructions)
+	bracketPairs := lexparse.Locate_Brackets(*program.Instructions)
 	// main run function
-	for PC := 0; PC < len(program.Instructions); PC++ {
-		cmd := program.Instructions[PC]
+	for PC := 0; PC < len(*program.Instructions); PC++ {
+		cmd := (*program.Instructions)[PC]
 		// fmt.Println("Checking for: ", cmd)
 		switch cmd.(type) {
 		case lexparse.Move_right:
