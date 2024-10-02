@@ -20,8 +20,6 @@ func Compile(filename string, outfile string, loop_optimize bool) {
 	// ---------- optimize ----------
 	if loop_optimize {
 		optimize.Optimize_simple_loops(program)
-		// fmt.Print(lexparse.Instructions_string(program.Instructions))
-		// return
 	}
 
 	// ---------- generator ----------

@@ -12,8 +12,8 @@ default rel
 segment .text
 
 extern ExitProcess
-extern putchar
-extern getchar
+extern my_putchar
+extern my_getchar
 extern calloc
 
 global main
@@ -25,6 +25,8 @@ main:
     mov     rdx, 1
     call    calloc
     mov     rdi, rax
+	add     rdi, 1024 * 1024 * 2
+	xor     rcx, rcx
 
 {MAIN_CODE}
 
@@ -61,11 +63,11 @@ func Generate(program *lp.Program) string {
 		case lp.Dec:
 			asm_b.add_instr("dec     BYTE [%s]", TAPE_PTR)
 		case lp.Output:
-			asm_b.add_instr("mov     rcx, [%s]", TAPE_PTR)
-			asm_b.add_instr("call    putchar")
+			asm_b.add_instr("mov     cl, BYTE [%s]", TAPE_PTR)
+			asm_b.add_instr("call    my_putchar")
 		case lp.Input:
-			asm_b.add_instr("call    getchar")
-			asm_b.add_instr("mov     [%s], rax", TAPE_PTR)
+			asm_b.add_instr("call    my_getchar")
+			asm_b.add_instr("mov     BYTE [%s], al", TAPE_PTR)
 		case lp.Left_loop:
 			asm_b.add_instr("cmp     BYTE [%s], 0", TAPE_PTR)
 			asm_b.add_instr("je      right_%s", strconv.Itoa((*program.BracketPairs)[i]))

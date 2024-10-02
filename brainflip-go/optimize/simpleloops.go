@@ -7,11 +7,12 @@ import (
 
 func Optimize_simple_loops(program *lp.Program) {
 
-	for i := len(*program.Simple_loops) - 1; i >= 0; i-- {
+	for i := len(*program.Simple_loops) - 1; i >= 0; i-- { // for each simple loop
 		right_loop_index := (*program.Simple_loops)[i]
 		left_loop_index := (*program.BracketPairs)[right_loop_index]
-		loop_instructions := (*program.Instructions)[left_loop_index : right_loop_index+1]
+		loop_instructions := (*program.Instructions)[left_loop_index : right_loop_index+1] // get instruction '[' -> ']' inclusive
 
+		// Doing analysis to see which parts of the loop are incremented by what
 		rel_cell_change := make(map[int]int)
 		REL_PTR := 0
 		for i := range loop_instructions {
@@ -29,56 +30,40 @@ func Optimize_simple_loops(program *lp.Program) {
 			}
 		}
 
-		var new_instructions []lp.Instruction
-		loop_increment := rel_cell_change[0]
+		var new_instructions = make([]lp.Instruction, 0)
 
-		if loop_increment != 1 && loop_increment != -1 { // TODO replace assert
+		p0 := rel_cell_change[0] // p[0] represents the pointers relative position as you enter the loop
+		if p0 != 1 && p0 != -1 {
 			fmt.Println(lp.Instructions_string(loop_instructions))
-			fmt.Println(loop_increment)
+			fmt.Println(p0)
 			panic("Something went wrong with the count of the p[0] relative change")
 		}
 
-		// psuedo := `{0: -1, 1: 3, -4: 5}
-		// 	R1 = p[0] // init counter var
-		// 	- - - - - // for each kv
-		// 	R2 = R1
-		// 	R2 = R2 * 3
-		// 	p[1] = p[1] + R2
-		// 	- - - - - // for each kv
-		// 	R2 = R1
-		// 	R2 = R2 * 5
-		// 	p[-4] = p[-4] + R2
-		// 	- - - - - // counter var set to 0
-		// 	p[0] = 0
-		// `
-		// psuedo_2 := `{0: 1, 1: 3, 4: 5}
-		// 	R1 = p[0]
-		// 	- - - - -
-		// 	R2 = R1
-		// 	R2 = R2 * ((255 - 3) + 1) // inclusiveness for 255 itself
-		// 	p[1] = p[1] + R2
-		// 	- - - - -
-		// 	p[0] = 0
-		// `
-		reverse := loop_increment == 1
-		if len(rel_cell_change) > 1 {
-			new_instructions = append(new_instructions, lp.Store{lp.R0, lp.Offset(0)}) // R0 = p[0]
+		if len(rel_cell_change) > 1 { // if there are other changes in the loop then we store p[0] for later use
+			if p0 == -1 {
+				new_instructions = append(new_instructions, lp.Store{lp.R0, lp.Offset(0)}) // R0 = p[0]
+			} else {
+				new_instructions = append(new_instructions, lp.Store{lp.R0, lp.Imm(256)}) //  R0 = 256
+				new_instructions = append(new_instructions, lp.Sub{lp.R0, lp.Offset(0)})  // 	R0 = R1 - p[0]
+			}
 		}
+
 		for offset, change := range rel_cell_change {
 			if offset == 0 {
 				continue
-			}
+			} // skip for p[0] as we know it changes by 1 until 0
 
-			// new_instructions = append(new_instructions, lp.)
-			new_instructions = append(new_instructions, lp.Store{lp.R1, lp.R0}) // R1 = R0
-			if reverse {
-				new_instructions = append(new_instructions, lp.Store{lp.R2, lp.Imm(256)}) // R2 = 256
-				new_instructions = append(new_instructions, lp.Sub{lp.R2, lp.R1})         // R2 = R2 - R1
-				new_instructions = append(new_instructions, lp.Store{lp.R1, lp.R2})       // R1 = R2
+			add := change > 0
+			for i := 0; i < abs(change); i++ {
+				if add {
+					new_instructions = append(new_instructions, lp.Add{lp.Offset(offset), lp.R0})
+				} else {
+					new_instructions = append(new_instructions, lp.Sub{lp.Offset(offset), lp.R0})
+				}
 			}
-			new_instructions = append(new_instructions, lp.Mul{lp.R1, lp.Imm(change)})    // R1 = R1 * IMM
-			new_instructions = append(new_instructions, lp.Add{lp.Offset(offset), lp.R1}) // p[offset] = p[offset] + R1
 		}
+
+		// Set p[0] every time
 		new_instructions = append(new_instructions, lp.Store{lp.Offset(0), lp.Imm(0)}) // p[0] = 0
 
 		*program.Instructions = lp.Instructions_replace(*program.Instructions, left_loop_index, right_loop_index+1, new_instructions)
@@ -86,3 +71,36 @@ func Optimize_simple_loops(program *lp.Program) {
 		*program.BracketPairs = lp.Locate_Brackets(*program.Instructions)
 	}
 }
+
+// what a dumb thing
+func abs(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
+}
+
+// psuedo := `{0: -1, 1: 3, -4: 5}
+//  R0 = p[0]
+// 	- - - - - // for each kv
+//  p[1] = p[1] + R0
+//  p[1] = p[1] + R0
+//  p[1] = p[1] + R0
+// 	- - - - - // for each kv
+// 	p[3] = p[3] - R0
+// 	p[3] = p[3] - R0
+// 	p[3] = p[3] - R0
+// 	p[3] = p[3] - R0
+// 	- - - - - // counter var set to 0
+// 	p[0] = 0
+// `
+// psuedo_2 := `{0: 1, 1: 3, 4: 5}
+//  R0 = 256
+// 	R0 = R0 - p[0]
+// 	- - - - -
+// 	R1 = R0
+// 	R1 = R1 * ((255 - 3) + 1) // inclusiveness for 255 itself
+// 	p[1] = p[1] + R1
+// 	- - - - -
+// 	p[0] = 0
+// `
