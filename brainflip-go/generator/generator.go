@@ -83,13 +83,7 @@ func Generate(program *lp.Program) string {
 		case lp.Mul:
 			asm_b.add_instr("imul    %s, %s", i_t.Op1.ToAsm(), i_t.Op2.ToAsm())
 		case lp.Store:
-			v1, ok1 := i_t.Op1.(lp.Offset)
-			v2, ok2 := i_t.Op2.(lp.Imm)
-			if ok1 && ok2 {
-				asm_b.add_instr("mov     BYTE %s, %s", v1.ToAsm(), v2.ToAsm())
-			} else {
-				asm_b.add_instr("mov     %s, %s", i_t.Op1.ToAsm(), i_t.Op2.ToAsm())
-			}
+			asm_b.add_instr("mov     %s, %s", i_t.Op1.ToAsm(), i_t.Op2.ToAsm())
 		default:
 			// do nothing
 		}

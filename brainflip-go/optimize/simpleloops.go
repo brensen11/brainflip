@@ -43,8 +43,8 @@ func Optimize_simple_loops(program *lp.Program) {
 			if p0 == -1 {
 				new_instructions = append(new_instructions, lp.Store{lp.R0, lp.Offset(0)}) // R0 = p[0]
 			} else {
-				new_instructions = append(new_instructions, lp.Store{lp.R0, lp.Imm(256)}) //  R0 = 256
-				new_instructions = append(new_instructions, lp.Sub{lp.R0, lp.Offset(0)})  // 	R0 = R1 - p[0]
+				new_instructions = append(new_instructions, lp.Store{lp.R0, lp.Imm(0)})  //  R0 = 256
+				new_instructions = append(new_instructions, lp.Sub{lp.R0, lp.Offset(0)}) // 	R0 = R1 - p[0]
 			}
 		}
 

@@ -6,7 +6,7 @@ def print_byte_values(file_path):
         with open(file_path, 'rb') as file:  # Open the file in binary mode
             byte = file.read(1)  # Read one byte at a time
             while byte:
-                print(int.from_bytes(byte))  # Print the numeric value of the byte
+                print(int.from_bytes(byte, 'big'))  # Print the numeric value of the byte
                 byte = file.read(1)  # Read the next byte
     except FileNotFoundError:
         print(f"The file {file_path} was not found.")

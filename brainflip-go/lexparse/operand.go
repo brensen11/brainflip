@@ -28,12 +28,14 @@ func (imm Imm) String() string {
 	return fmt.Sprintf("%d", imm)
 }
 
+// TODO this doesn't belong here move to generator??????
+
 func (reg reg) ToAsm() string {
 	regname := reg + 12
-	return fmt.Sprintf("r%d", regname)
+	return fmt.Sprintf("r%db", regname)
 }
 func (off Offset) ToAsm() string {
-	return fmt.Sprintf("[rdi + %d]", off)
+	return fmt.Sprintf("BYTE [rdi + %d]", off)
 }
 func (imm Imm) ToAsm() string {
 	return imm.String()
