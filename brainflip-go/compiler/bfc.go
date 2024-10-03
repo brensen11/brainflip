@@ -5,7 +5,6 @@ import (
 	"brainflip-go/lexparse"
 	"brainflip-go/optimize"
 	"brainflip-go/utils"
-	"fmt"
 )
 
 func Compile(filename string, outfile string, loop_optimize bool) {
@@ -21,7 +20,8 @@ func Compile(filename string, outfile string, loop_optimize bool) {
 	// ---------- optimize ----------
 	if loop_optimize {
 		optimize.Optimize_simple_loops(program)
-		fmt.Println("Optimizer On!!!!!")
+		optimize.Optimize_scans(program)
+		// fmt.Println("Optimizer On!!!!!")
 	}
 
 	// ---------- generator ----------

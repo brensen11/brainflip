@@ -18,8 +18,8 @@ sub run1($) {
 
 sub run2($) {
     (my $f) = @_;
-    system("../brainflip-go/bf.exe -O $f");
-    system("make -f ../brainflip-go/Makefile out");
+    system("../brainflip-go/bf.exe -O $f > /dev/null");
+    system("make -f ../brainflip-go/Makefile out > /dev/null");
     system("./out.exe < input.dat > output.dat 2>/dev/null");
     system("rm ./out.exe")
 }

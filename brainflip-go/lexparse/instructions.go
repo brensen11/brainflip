@@ -37,6 +37,9 @@ type Store struct {
 	Op1 Operand
 	Op2 Operand
 }
+type Raw struct {
+	Raw string
+}
 
 // types extend Instruction
 func (Move_right) isInstruction() {}
@@ -52,6 +55,7 @@ func (Add) isInstruction()   {}
 func (Sub) isInstruction()   {}
 func (Mul) isInstruction()   {}
 func (Store) isInstruction() {}
+func (Raw) isInstruction()   {}
 
 // toString stmts
 func (Move_right) String() string { return ">" }
@@ -75,6 +79,7 @@ func (i Mul) String() string {
 func (i Store) String() string {
 	return fmt.Sprint("\n", i.Op1, " = ", i.Op2, "\n")
 }
+func (raw Raw) String() string { return raw.Raw }
 
 func Instructions_string(instrs []Instruction) string {
 	var b strings.Builder

@@ -16,6 +16,14 @@ extern my_putchar
 extern my_getchar
 extern calloc
 
+; Index Vector masks
+zeroes db 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ones dq 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF
+indices_1 db 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15;
+indices_2 db 0, -1, 2, -1, 4, -1, 6, -1, 8, -1, 10, -1, 12, -1, 14, -1;
+indices_4 db 0, -1, -1, -1, 4, -1, -1, -1, 8, -1, -1, -1, 12, -1, -1, -1;
+indices_8 db 0, -1, -1, -1, -1, -1, -1, -1, 8, -1, -1, -1, -1, -1, -1, -1;
+
 global main
 main:
     push    rbp
@@ -84,6 +92,8 @@ func Generate(program *lp.Program) string {
 			asm_b.add_instr("imul    %s, %s", i_t.Op1.ToAsm(), i_t.Op2.ToAsm())
 		case lp.Store:
 			asm_b.add_instr("mov     %s, %s", i_t.Op1.ToAsm(), i_t.Op2.ToAsm())
+		case lp.Raw:
+			asm_b.add_instr(i_t.Raw)
 		default:
 			// do nothing
 		}
