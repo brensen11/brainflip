@@ -15,17 +15,17 @@ func Compile(filename string, outfile string, loop_optimize bool) {
 	bf_prog := utils.Readfile(filename)
 
 	// ---------- lexparse ----------
-	program := lexparse.Lexparse(bf_prog)
+	instructions := lexparse.Lexparse(bf_prog)
 
 	// ---------- optimize ----------
 	if loop_optimize {
-		optimize.Optimize_simple_loops(program)
-		optimize.Optimize_scans(program)
+		optimize.Optimize_simple_loops(instructions)
+		optimize.Optimize_scans(instructions)
 		// fmt.Println("Optimizer On!!!!!")
 	}
 
 	// ---------- generator ----------
-	assembly := generator.Generate(program)
+	assembly := generator.Generate(instructions)
 
 	// ---------- writefile ----------
 	utils.Writefile(assembly, outfile) // , filename)

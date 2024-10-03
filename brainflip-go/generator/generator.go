@@ -53,13 +53,15 @@ func (asm_b *builder) add_label(instr string, args ...any) {
 	asm_b.WriteString(fmt.Sprintf(instr+":\n", args...))
 }
 
-func Generate(program *lp.Program) string {
+func Generate(instructions *[]lp.Instruction) string {
 	var asm_b builder
 	const TAPE_PTR string = "rdi"
 
+	bracket_pairs := lp.Locate_Brackets(*instructions)
+
 	// main run function
-	for i := 0; i < len(*program.Instructions); i++ {
-		instruction := (*program.Instructions)[i]
+	for i := 0; i < len(*instructions); i++ {
+		instruction := (*instructions)[i]
 
 		switch i_t := instruction.(type) {
 		case lp.Move_right:
@@ -78,11 +80,11 @@ func Generate(program *lp.Program) string {
 			asm_b.add_instr("mov     BYTE [%s], al", TAPE_PTR)
 		case lp.Left_loop:
 			asm_b.add_instr("cmp     BYTE [%s], 0", TAPE_PTR)
-			asm_b.add_instr("je      right_%s", strconv.Itoa((*program.BracketPairs)[i]))
+			asm_b.add_instr("je      right_%s", strconv.Itoa(bracket_pairs[i]))
 			asm_b.add_label("left_%s", strconv.Itoa(i))
 		case lp.Right_loop:
 			asm_b.add_instr("cmp     BYTE [%s], 0", TAPE_PTR)
-			asm_b.add_instr("jne     left_%s", strconv.Itoa((*program.BracketPairs)[i]))
+			asm_b.add_instr("jne     left_%s", strconv.Itoa(bracket_pairs[i]))
 			asm_b.add_label("right_%s", strconv.Itoa(i))
 		case lp.Add:
 			asm_b.add_instr("add     %s, %s", i_t.Op1.ToAsm(), i_t.Op2.ToAsm())

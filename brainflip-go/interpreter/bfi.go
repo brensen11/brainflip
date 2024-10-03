@@ -9,16 +9,16 @@ import (
 
 func Interpret(filename string) {
 	code := utils.Readfile(filename)
-	program := lexparse.Lexparse(code)
+	instructions := lexparse.Lexparse(code)
 
 	const TAPE_SIZE = 1024 * 1024 * 64
 	var TAPE [TAPE_SIZE]byte
 	var POINTER int = TAPE_SIZE / 2
 
-	bracketPairs := lexparse.Locate_Brackets(*program.Instructions)
+	bracketPairs := lexparse.Locate_Brackets(*instructions)
 	// main run function
-	for PC := 0; PC < len(*program.Instructions); PC++ {
-		cmd := (*program.Instructions)[PC]
+	for PC := 0; PC < len(*instructions); PC++ {
+		cmd := (*instructions)[PC]
 		// fmt.Println("Checking for: ", cmd)
 		switch cmd.(type) {
 		case lexparse.Move_right:

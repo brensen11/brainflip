@@ -5,8 +5,8 @@ import (
 	"fmt"
 )
 
-func Optimize_scans(program *lp.Program) {
-	scans := lp.Locate_Scans(program.Instructions)
+func Optimize_scans(instructions *[]lp.Instruction) {
+	scans := lp.Locate_Scans(instructions)
 	for i := len(scans) - 1; i >= 0; i-- {
 		scan := scans[i]
 		l := scan.L
@@ -43,6 +43,6 @@ right_vector_%d:
 		var replace []lp.Instruction
 		replace = append(replace, lp.Raw{raw_instructions})
 
-		*program.Instructions = lp.Instructions_replace(*program.Instructions, l, r+1, replace)
+		*instructions = lp.Instructions_replace(*instructions, l, r+1, replace)
 	}
 }

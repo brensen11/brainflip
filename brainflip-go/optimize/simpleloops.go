@@ -5,12 +5,14 @@ import (
 	"fmt"
 )
 
-func Optimize_simple_loops(program *lp.Program) {
+func Optimize_simple_loops(instructions *[]lp.Instruction) {
+	bracketPairs := lp.Locate_Brackets(*instructions)
+	simple_loops, _ := lp.Categorize_Brackets(*instructions)
 
-	for i := len(*program.Simple_loops) - 1; i >= 0; i-- { // for each simple loop
-		right_loop_index := (*program.Simple_loops)[i]
-		left_loop_index := (*program.BracketPairs)[right_loop_index]
-		loop_instructions := (*program.Instructions)[left_loop_index : right_loop_index+1] // get instruction '[' -> ']' inclusive
+	for i := len(simple_loops) - 1; i >= 0; i-- { // for each simple loop
+		right_loop_index := simple_loops[i]
+		left_loop_index := bracketPairs[right_loop_index]
+		loop_instructions := (*instructions)[left_loop_index : right_loop_index+1] // get instruction '[' -> ']' inclusive
 
 		// Doing analysis to see which parts of the loop are incremented by what
 		rel_cell_change := make(map[int]int)
@@ -66,9 +68,7 @@ func Optimize_simple_loops(program *lp.Program) {
 		// Set p[0] every time
 		new_instructions = append(new_instructions, lp.Store{lp.Offset(0), lp.Imm(0)}) // p[0] = 0
 
-		*program.Instructions = lp.Instructions_replace(*program.Instructions, left_loop_index, right_loop_index+1, new_instructions)
-		*program.Simple_loops, *program.Complex_loops = lp.Categorize_Brackets(*program.Instructions)
-		*program.BracketPairs = lp.Locate_Brackets(*program.Instructions)
+		*instructions = lp.Instructions_replace(*instructions, left_loop_index, right_loop_index+1, new_instructions)
 	}
 }
 

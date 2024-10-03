@@ -9,19 +9,19 @@ import (
 
 func Interpret_profiler(filename string) {
 	code := utils.Readfile(filename)
-	program := lexparse.Lexparse(code)
+	instructions := lexparse.Lexparse(code)
 
 	var cmd_count [8]int
 
 	const TAPE_SIZE = 1024 * 4
 	var TAPE [TAPE_SIZE]byte
 	var POINTER int = 0
-	bracketPairs := lexparse.Locate_Brackets(*program.Instructions)
+	bracketPairs := lexparse.Locate_Brackets(*instructions)
 	rightBrackCount := make(map[int]int)
 
 	// main run function
-	for PC := 0; PC < len(*program.Instructions); PC++ {
-		cmd := (*program.Instructions)[PC]
+	for PC := 0; PC < len(*instructions); PC++ {
+		cmd := (*instructions)[PC]
 		// fmt.Println("Checking for: ", cmd)
 		switch cmd.(type) {
 		case lexparse.Move_right:
@@ -83,12 +83,12 @@ func Interpret_profiler(filename string) {
 		}
 	}
 
-	simple, complex := lexparse.Categorize_Brackets(*program.Instructions)
+	simple, complex := lexparse.Categorize_Brackets(*instructions)
 	sort.Slice(simple, sort_func(simple))
 	sort.Slice(complex, sort_func(complex))
 
 	format_stmt := func(idx int) string {
-		loop_stmt := lexparse.Instructions_string((*program.Instructions)[bracketPairs[idx] : idx+1])
+		loop_stmt := lexparse.Instructions_string((*instructions)[bracketPairs[idx] : idx+1])
 		// loop_stmt = strings.Replace(loop_stmt, "\r", "", -1)
 		// loop_stmt = strings.Replace(loop_stmt, "\n", "", -1)
 		return fmt.Sprintf("Loop: %s at [%d:%d] occured %d times", loop_stmt, bracketPairs[idx], idx+1, rightBrackCount[idx])
