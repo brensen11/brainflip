@@ -8,7 +8,7 @@ ASM=nasm
 	$(ASM) -o $@ -fwin64 $<
 
 runtime.o: runtime/runtime.c
-	$(LK) -c runtime/runtime.c -o runtime.o
+	$(LK) -g -c runtime/runtime.c -o runtime.o
 
 clean:
 	rm -f *.asm *.exe
