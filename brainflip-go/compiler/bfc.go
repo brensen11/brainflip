@@ -21,7 +21,6 @@ func Compile(filename string, outfile string, loop_optimize bool) {
 	if loop_optimize {
 		optimize.Optimize_simple_loops(instructions)
 		optimize.Optimize_scans(instructions)
-		// fmt.Println("Optimizer On!!!!!")
 	}
 
 	// ---------- generator ----------

@@ -11,6 +11,12 @@ func Optimize_scans(instructions *[]lp.Instruction) {
 		scan := scans[i]
 		l := scan.L
 		r := scan.R
+		var dir_instr string
+		if scan.Moves > 0 {
+			dir_instr = "add"
+		} else {
+			dir_instr = "sub"
+		}
 		raw_instructions := fmt.Sprintf(`; Scan Code
 	xor     rcx, rcx
 	cmp     BYTE [rdi], 0
@@ -33,13 +39,13 @@ left_vector_%d:
 	tzcnt    ecx, eax ; count the trailing 0s of the register, which will tell me the index
 	cmp      ecx, 16
 	jne      end_vector_%d
-	add      rdi, 16
+	%s      rdi, 16
 	jmp      left_vector_%d
 end_vector_%d:
-	add      rdi, rcx
+	%s      rdi, rcx
 right_vector_%d:
 ; Scan Code End
-		`, l, l, abs(scan.Moves), l, l, l, l)
+		`, l, l, abs(scan.Moves), l, dir_instr, l, l, dir_instr, l)
 		var replace []lp.Instruction
 		replace = append(replace, lp.Raw{raw_instructions})
 
