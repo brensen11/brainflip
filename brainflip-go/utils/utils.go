@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"os"
+	"strings"
 )
 
 // Stack Data Structure
@@ -41,4 +42,16 @@ func Writefile(content string, filename string) {
 	if err != nil {
 		panic(fmt.Sprint("Error writing to file:", err))
 	}
+}
+
+type Builderf struct {
+	strings.Builder
+}
+
+func (asm_b *Builderf) Add_instr(instr string, args ...any) {
+	asm_b.WriteString(fmt.Sprintf("\t"+instr+"\n", args...))
+}
+
+func (asm_b *Builderf) Add_label(instr string, args ...any) {
+	asm_b.WriteString(fmt.Sprintf(instr+":\n", args...))
 }
