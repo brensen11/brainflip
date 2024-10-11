@@ -7,6 +7,11 @@ import (
 	"strings"
 )
 
+// mask_1: 0xFFFFFFFF
+// mask_2: ... (101010101010...)
+// mask_4:
+// mask_8:
+
 var asm_win64_template = `bits 64
 default rel
 segment .text
@@ -18,11 +23,11 @@ extern calloc
 
 ; Index Vector masks
 zeroes db 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-ones dq 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF
-indices_1 db 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31;
-indices_2 db 0, -1, 2, -1, 4, -1, 6, -1, 8, -1, 10, -1, 12, -1, 14, -1;
-indices_4 db 0, -1, -1, -1, 4, -1, -1, -1, 8, -1, -1, -1, 12, -1, -1, -1;
-indices_8 db 0, -1, -1, -1, -1, -1, -1, -1, 8, -1, -1, -1, -1, -1, -1, -1;
+vmovdqu  ymm0, [zeroes] ; load 0s
+mask_1 dw 0xFFFF FFFF ; 11111111
+mask_2 dw 0xAAAA AAAA ; 10101010
+mask_3 dw 0x8888 8888 ; 10001000
+mask_4 dw 0x8080 8080 ; 10000000
 
 global main
 main:
