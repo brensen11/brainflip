@@ -25,18 +25,14 @@ func Optimize_scans(instructions *[]lp.Instruction) {
 		ri.Add_instr("je      right_vector_%d", l)
 		ri.Add_instr("movdqu  xmm0, [zeroes] ; load 0s")
 		if !right {
-			ri.Add_instr("sub     rdi, 16")
+			ri.Add_instr("sub     rdi, 15")
 		}
 
 		ri.Add_label("left_vector_%d", l)
 		ri.Add_instr("movdqu  xmm1, [rdi] ; load data from tape")
 		ri.Add_instr("pcmpeqb xmm1, xmm0 ;  zero_count = CMEQ.16B input, 0s; all 0s marked with -1 else 0")
-		// ri.Add_instr("pxor    xmm0, xmm1 ; not_zero_count = xor 0xFF.., zero_count")
-		// ri.Add_instr("por     xmm0, xmm3 ; masked = ORN.16B indices, zeroes")
 		ri.Add_instr("pmovmskb eax, xmm1 ; mov msb of xmm1 into eax, now data is in bits instead of bytes")
-
-		// vvvv TODO MASK WITH INDEX COUNT vvvv
-		// ri.Add_instr("xor      eax, [mask_%d]", abs(scan.Moves))
+		ri.Add_instr("and      eax, [mask_%d]", abs(scan.Moves))
 		ri.Add_instr("movzx    eax, ax")
 		if right {
 			ri.Add_instr("tzcnt    ecx, eax ; count the trailing 0s of the register, which will tell me the index")
