@@ -24,10 +24,10 @@ extern calloc
 ; Index Vector masks
 zeroes db 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 vmovdqu  ymm0, [zeroes] ; load 0s
-mask_1 dw 0xFFFF FFFF ; 11111111
-mask_2 dw 0xAAAA AAAA ; 10101010
-mask_3 dw 0x8888 8888 ; 10001000
-mask_4 dw 0x8080 8080 ; 10000000
+mask_1 dd 0xFFFFFFFF ; 11111111
+mask_2 dd 0xAAAAAAAA ; 10101010
+mask_3 dd 0x88888888 ; 10001000
+mask_4 dd 0x80808080 ; 10000000
 
 global main
 main:
