@@ -23,7 +23,7 @@ extern calloc
 
 ; Index Vector masks
 zeroes db 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-vmovdqu  ymm0, [zeroes] ; load 0s
+movdqu  xmm0, [zeroes] ; load 0s
 mask_1 dd 0xFFFFFFFF ; 11111111
 mask_2 dd 0xAAAAAAAA ; 10101010
 mask_3 dd 0x88888888 ; 10001000
