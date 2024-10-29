@@ -6,6 +6,12 @@ void my_putchar(unsigned char c) {
     WriteFile(hConsole, &c, 1, &written, NULL);         
 }
 
+void my_print(unsigned char* string) {
+    for(int i = 0; string[i] != NULL; i++) {
+        my_putchar(string[i]);
+    }
+}
+
 unsigned char my_getchar() {
     HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
     unsigned char buffer[1]; // Buffer to hold the byte read

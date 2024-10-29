@@ -18,13 +18,17 @@ func Compile(filename string, outfile string, loop_optimize bool) {
 	instructions := lexparse.Lexparse(bf_prog)
 
 	// ---------- optimize ----------
+	var TAPE *[]byte = nil
+	var POINTER int = -1
+	var output string = ""
 	if loop_optimize {
+		TAPE, POINTER, output = optimize.Optimize_partialeval(instructions)
 		optimize.Optimize_simple_loops(instructions)
 		optimize.Optimize_scans(instructions)
 	}
 
 	// ---------- generator ----------
-	assembly := generator.Generate(instructions)
+	assembly := generator.Generate(instructions, TAPE, POINTER, output)
 
 	// ---------- writefile ----------
 	utils.Writefile(assembly, outfile) // , filename)

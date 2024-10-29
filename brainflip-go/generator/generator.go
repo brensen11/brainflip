@@ -19,6 +19,7 @@ segment .text
 extern ExitProcess
 extern my_putchar
 extern my_getchar
+extern my_print
 extern calloc
 
 ; Index Vector masks
@@ -28,16 +29,14 @@ mask_1 dd 0xFFFFFFFF ; 11111111
 mask_2 dd 0xAAAAAAAA ; 10101010
 mask_3 dd 0x88888888 ; 10001000
 mask_4 dd 0x80808080 ; 10000000
+{OUTPUT}
 
 global main
 main:
     push    rbp
     mov     rbp, rsp
     sub     rsp, 32
-    mov     rcx, 1024 * 1024 * 4
-    mov     rdx, 1
-    call    calloc
-    mov     rdi, rax
+{SETUP_TAPE_CODE}
 	add     rdi, 1024 * 1024 * 2
 	xor     rcx, rcx
 
@@ -46,9 +45,66 @@ main:
     xor     rcx, rcx
     call    ExitProcess`
 
-func Generate(instructions *[]lp.Instruction) string {
+func setup(TAPE *[]byte, POINTER int) string {
+	var asm_b utils.Builderf
+	if TAPE != nil && POINTER > -1 {
+		asm_b.Add_instr("mov     rcx, %d", len(*TAPE))
+		asm_b.Add_instr("mov     rdx, 1")
+		asm_b.Add_instr("call    calloc")
+		asm_b.Add_instr("mov     rdi, rax")
+		asm_b.Add_instr("add     rdi, %d", POINTER)
+		asm_b.Add_instr("lea     rcx, [my_string]")
+		asm_b.Add_instr("call    my_print")
+	} else {
+		asm_b.Add_instr("mov     rcx, 1024 * 1024 * 4")
+		asm_b.Add_instr("mov     rdx, 1")
+		asm_b.Add_instr("call    calloc")
+		asm_b.Add_instr("mov     rdi, rax")
+	}
+
+	return asm_b.String()
+}
+
+func to_string_def_instr(output string) string {
+	var string_def strings.Builder
+	string_open := false
+	for _, char := range output {
+		switch char {
+		case '\t':
+			if string_open {
+				string_def.WriteString("\", ")
+				string_open = false
+			}
+			string_def.WriteString("0x09, ")
+		case '\n':
+			if string_open {
+				string_def.WriteString("\", ")
+				string_open = false
+			}
+			string_def.WriteString("0x0A, ")
+		case '\r':
+			break
+		default:
+			if !string_open {
+				string_def.WriteRune('"')
+				string_open = true
+			}
+			string_def.WriteRune(char)
+		}
+	}
+	if string_open {
+		string_def.WriteString("\", ")
+	}
+	return "my_string db " + string_def.String() + "0"
+}
+
+func Generate(instructions *[]lp.Instruction, TAPE *[]byte, POINTER int, output string) string {
 	var asm_b utils.Builderf
 	const TAPE_PTR string = "rdi"
+	var assembly_string string = asm_win64_template
+
+	assembly_string = strings.Replace(assembly_string, "{OUTPUT}", to_string_def_instr(output), 1)
+	assembly_string = strings.Replace(assembly_string, "{SETUP_TAPE_CODE}", setup(TAPE, POINTER), 1)
 
 	bracket_pairs := lp.Locate_Brackets(*instructions)
 
@@ -93,5 +149,5 @@ func Generate(instructions *[]lp.Instruction) string {
 			// do nothing
 		}
 	}
-	return strings.Replace(asm_win64_template, "{MAIN_CODE}", asm_b.String(), 1)
+	return strings.Replace(assembly_string, "{MAIN_CODE}", asm_b.String(), 1)
 }
