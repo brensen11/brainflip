@@ -1,4 +1,5 @@
-./build/bf.exe $1 > $2.ll
-llvm-as $2.ll -o $2.bc
-llc -filetype=obj $2.bc -o $2.o
-gcc -g -o $2 $2.o runtime.o
+filename=$(basename "$1" .b)
+./build/bf.exe $1 > $filename.ll
+llvm-as $filename.ll -o $filename.bc
+llc -filetype=obj $filename.bc -o $filename.o
+gcc -g -o $filename $filename.o runtime.o
